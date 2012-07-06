@@ -1,0 +1,5 @@
+.*
+savefile/*
+*.dat
+el-get
+elpa
