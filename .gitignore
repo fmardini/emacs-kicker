@@ -3,3 +3,4 @@ savefile/*
 *.dat
 el-get
 elpa
+swank

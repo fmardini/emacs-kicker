@@ -9,16 +9,18 @@
 ;;
 ;; This file is NOT part of GNU Emacs.
 
-(require 'cl)				; common lisp goodies, loop
+(require 'cl)        ; common lisp goodies, loop
 
-(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+(add-to-list 'load-path (concat user-emacs-directory "el-get/el-get"))
+(add-to-list 'load-path (concat user-emacs-directory "src/lib"))
 
 (unless (require 'el-get nil t)
   (url-retrieve
    "https://github.com/dimitri/el-get/raw/master/el-get-install.el"
    (lambda (s)
-     (end-of-buffer)
-     (eval-print-last-sexp))))
+     (let (el-get-master-branch)
+       (end-of-buffer)
+       (eval-print-last-sexp)))))
 
 ;; now either el-get is `require'd already, or have been `load'ed by the
 ;; el-get installer.
@@ -26,53 +28,52 @@
 ;; set local recipes
 (setq
  el-get-sources
- '((:name buffer-move			; have to add your own keys
-	  :after (lambda ()
-		   (global-set-key (kbd "<C-S-up>")     'buf-move-up)
-		   (global-set-key (kbd "<C-S-down>")   'buf-move-down)
-		   (global-set-key (kbd "<C-S-left>")   'buf-move-left)
-		   (global-set-key (kbd "<C-S-right>")  'buf-move-right)))
+ '((:name buffer-move      ; have to add your own keys
+    :after (progn
+       (global-set-key (kbd "<C-S-up>")     'buf-move-up)
+       (global-set-key (kbd "<C-S-down>")   'buf-move-down)
+       (global-set-key (kbd "<C-S-left>")   'buf-move-left)
+       (global-set-key (kbd "<C-S-right>")  'buf-move-right)))
 
-   (:name smex				; a better (ido like) M-x
-	  :after (lambda ()
-		   (setq smex-save-file "~/.emacs.d/.smex-items")
-		   (global-set-key (kbd "M-x") 'smex)
-		   (global-set-key (kbd "M-X") 'smex-major-mode-commands)))
+   (:name smex        ; a better (ido like) M-x
+    :after (progn
+       (setq smex-save-file "~/.emacs.d/.smex-items")
+       (global-set-key (kbd "M-x") 'smex)
+       (global-set-key (kbd "M-X") 'smex-major-mode-commands)))
 
-   (:name magit				; git meet emacs, and a binding
-	  :after (lambda ()
-		   (global-set-key (kbd "C-x C-z") 'magit-status)))
+   (:name magit        ; git meet emacs, and a binding
+    :after (progn
+       (global-set-key (kbd "C-x C-z") 'magit-status)))
 
-   (:name goto-last-change		; move pointer back to last change
-	  :after (lambda ()
-		   ;; when using AZERTY keyboard, consider C-x C-_
-		   (global-set-key (kbd "C-x C-/") 'goto-last-change)))))
+   (:name lisppaste
+          :type elpa)
+
+   (:name flymake-jshint
+          :type elpa)
+
+   (:name goto-last-change    ; move pointer back to last change
+    :after (progn
+       ;; when using AZERTY keyboard, consider C-x C-_
+       (global-set-key (kbd "C-x C-/") 'goto-last-change)))))
 
 ;; now set our own packages
 (setq
  my:el-get-packages
- '(el-get				; el-get is self-hosting
-   escreen            			; screen for emacs, C-\ C-h
-   php-mode-improved			; if you're into php...
-   switch-window			; takes over C-x o
-   auto-complete			; complete as you type with overlays
-   zencoding-mode			; http://www.emacswiki.org/emacs/ZenCoding
-   color-theme		                ; nice looking emacs
-   color-theme-tango))	                ; check out color-theme-solarized
-
-;;
-;; Some recipes require extra tools to be installed
-;;
-;; Note: el-get-install requires git, so we know we have at least that.
-;;
-(when (el-get-executable-find "cvs")
-  (add-to-list 'my:el-get-packages 'emacs-goodies-el)) ; the debian addons for emacs
-
-(when (el-get-executable-find "svn")
-  (loop for p in '(psvn    		; M-x svn-status
-		   yasnippet		; powerful snippet mode
-		   )
-	do (add-to-list 'my:el-get-packages p)))
+ '(el-get                             ; el-get is self-hosting
+   switch-window                      ; takes over C-x o
+   auto-complete                      ; complete as you type with overlays
+   evil                               ; VIM
+   flymake-cursor                     ;
+   yaml-mode                          ;
+   haml-mode                          ;
+   python-pep8                        ;
+   paredit                            ;
+   highlight-parentheses              ;
+   slime                              ;
+   clojure-mode                       ;
+   expand-region                      ;
+   color-theme                        ; nice looking emacs
+   color-theme-tango))                ; check out color-theme-solarized
 
 (setq my:el-get-packages
       (append
@@ -82,36 +83,118 @@
 ;; install new packages and init already installed packages
 (el-get 'sync my:el-get-packages)
 
+(require 'evil)
+(evil-mode 1)
+
 ;; on to the visual settings
-(setq inhibit-splash-screen t)		; no splash screen, thanks
-(line-number-mode 1)			; have line numbers and
-(column-number-mode 1)			; column numbers in the mode line
+(setq inhibit-splash-screen t)    ; no splash screen, thanks
+(line-number-mode 1)      ; have line numbers and
+(column-number-mode 1)      ; column numbers in the mode line
 
-(tool-bar-mode -1)			; no tool bar with icons
-(scroll-bar-mode -1)			; no scroll bars
-(unless (string-match "apple-darwin" system-configuration)
-  ;; on mac, there's always a menu bar drown, don't have it empty
-  (menu-bar-mode -1))
+(tool-bar-mode -1)      ; no tool bar with icons
+(menu-bar-mode -1)      ; no menu bar
+(scroll-bar-mode -1)    ; no scroll bars
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-;; choose your own fonts, in a system dependant way
-(if (string-match "apple-darwin" system-configuration)
-    (set-face-font 'default "Monaco-13")
-  (set-face-font 'default "Monospace-10"))
+(global-hl-line-mode)      ; highlight current line
+(global-linum-mode 1)      ; add line numbers on the left
 
-(global-hl-line-mode)			; highlight current line
-(global-linum-mode 1)			; add line numbers on the left
+(show-paren-mode t)
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+
+
+;; meaningful names for buffers with the same name
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+(setq uniquify-separator "/")
+(setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
+(setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+
+;; saveplace remembers your location in a file when saving files
+(defvar kicker-savefile-dir (concat user-emacs-directory "savefile/"))
+(setq save-place-file (concat kicker-savefile-dir "saveplace"))
+;; activate it for all buffers
+(setq-default save-place t)
+(require 'saveplace)
+
+(setq custom-file (concat kicker-savefile-dir "custom.el"))
+
+;; savehist keeps track of some history
+(setq savehist-additional-variables
+      ;; search entries
+      '(search ring regexp-search-ring)
+      ;; save every minute
+      savehist-autosave-interval 60
+      ;; keep the home clean
+      savehist-file (concat kicker-savefile-dir "savehist"))
+(savehist-mode t)
+
+;; save recent files
+(setq recentf-save-file (concat kicker-savefile-dir "recentf")
+      recentf-max-saved-items 200
+      recentf-max-menu-items 15)
+(recentf-mode t)
+
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
+
+
+;; flyspell-mode does spell-checking on the fly as you type
+(setq ispell-program-name "aspell" ; use aspell instead of ispell
+      ispell-extra-args '("--sug-mode=ultra"))
+(autoload 'flyspell-mode "flyspell" "On-the-fly spelling checker." t)
+
+(defun turn-on-flyspell ()
+  "Force flyspell-mode on using a positive argument.  For use in hooks."
+  (interactive)
+  (flyspell-mode +1))
+
+(add-hook 'message-mode-hook 'prelude-turn-on-flyspell)
+(add-hook 'text-mode-hook 'turn-on-flyspell)
+
+;; parentheses
+(dolist (hook '(scheme-mode-hook
+                lisp-mode-hook
+                emacs-lisp-mode-hook
+                clojure-mode-hook))
+  (add-hook hook (lambda ()
+                   (paredit-mode t)
+                   (highlight-parentheses-mode t))))
+
+(setq parens-require-spaces nil)
+(setq show-paren-style 'expression)
+(show-paren-mode t)
+(set-face-background 'show-paren-match "grey13")
+
+(require 'eldoc)
+(add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
 ;; avoid compiz manager rendering bugs
 (add-to-list 'default-frame-alist '(alpha . 100))
-
-;; copy/paste with C-c and C-v and C-x, check out C-RET too
-(cua-mode)
 
 ;; under mac, have Command as Meta and keep Option for localized input
 (when (string-match "apple-darwin" system-configuration)
   (setq mac-allow-anti-aliasing t)
   (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'none))
+  (setq mac-option-modifier 'none)
+
+  (let (osx-paths)
+    (dolist (path '("/usr/local/bin" "/opt/local/bin" "/opt/local/sbin") (setenv "PATH" (concat osx-paths (getenv "PATH"))))
+      (push path exec-path)
+      (setq osx-paths (concat (concat path ":") osx-paths))))
+
+  ;; Emacs users obviously have little need for Command and Option keys,
+  ;; but they do need Meta and Super
+  (setq mac-command-modifier 'super)
+  (setq mac-option-modifier 'meta))
 
 ;; Use the clipboard, pretty please, so that copy/paste "works"
 (setq x-select-enable-clipboard t)
@@ -128,26 +211,16 @@
 ;; content to reflect what's on-disk.
 (global-auto-revert-mode 1)
 
+;; show trailing whitespace
+(setq-default show-trailing-whitespace t)
+(set-face-attribute 'trailing-whitespace nil
+        :background "blue")
+
 ;; M-x shell is a nice shell interface to use, let's make it colorful.  If
 ;; you need a terminal emulator rather than just a shell, consider M-x term
 ;; instead.
 (autoload 'ansi-color-for-comint-mode-on "ansi-color" nil t)
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-
-;; If you do use M-x term, you will notice there's line mode that acts like
-;; emacs buffers, and there's the default char mode that will send your
-;; input char-by-char, so that curses application see each of your key
-;; strokes.
-;;
-;; The default way to toggle between them is C-c C-j and C-c C-k, let's
-;; better use just one key to do the same.
-(require 'term)
-(define-key term-raw-map  (kbd "C-'") 'term-line-mode)
-(define-key term-mode-map (kbd "C-'") 'term-char-mode)
-
-;; Have C-y act as usual in term-mode, to avoid C-' C-y C-'
-;; Well the real default would be C-c C-j C-y C-c C-k.
-(define-key term-raw-map  (kbd "C-y") 'term-paste)
 
 ;; use ido for minibuffer completion
 (require 'ido)
@@ -157,21 +230,7 @@
 (setq ido-use-filename-at-point 'guess)
 (setq ido-show-dot-for-dired t)
 
-;; default key to switch buffer is C-x b, but that's not easy enough
-;;
-;; when you do that, to kill emacs either close its frame from the window
-;; manager or do M-x kill-emacs.  Don't need a nice shortcut for a once a
-;; week (or day) action.
-(global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
-(global-set-key (kbd "C-x C-c") 'ido-switch-buffer)
-(global-set-key (kbd "C-x B") 'ibuffer)
-
 ;; C-x C-j opens dired with the cursor right on the file you're editing
 (require 'dired-x)
 
-;; full screen
-(defun fullscreen ()
-  (interactive)
-  (set-frame-parameter nil 'fullscreen
-		       (if (frame-parameter nil 'fullscreen) nil 'fullboth)))
-(global-set-key [f11] 'fullscreen)
+(load-theme 'tango-dark)
