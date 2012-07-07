@@ -69,7 +69,6 @@
    python-pep8                        ;
    paredit                            ;
    highlight-parentheses              ;
-   slime                              ;
    clojure-mode                       ;
    expand-region                      ;
    color-theme                        ; nice looking emacs
@@ -172,7 +171,7 @@
 (setq parens-require-spaces nil)
 (setq show-paren-style 'expression)
 (show-paren-mode t)
-(set-face-background 'show-paren-match "grey13")
+(set-face-background 'show-paren-match "lightskyblue1")
 
 (require 'eldoc)
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
