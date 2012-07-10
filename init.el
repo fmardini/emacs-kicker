@@ -84,6 +84,9 @@
 
 (require 'evil)
 (evil-mode 1)
+(setq-default evil-shift-width 2)
+(define-key evil-motion-state-map "j" 'evil-next-visual-line)
+(define-key evil-motion-state-map "k" 'evil-previous-visual-line)
 
 ;; on to the visual settings
 (setq inhibit-splash-screen t)    ; no splash screen, thanks
@@ -169,7 +172,7 @@
                    (highlight-parentheses-mode t))))
 
 (setq parens-require-spaces nil)
-(setq show-paren-style 'expression)
+(setq show-paren-style 'parenthesis)
 (show-paren-mode t)
 (set-face-background 'show-paren-match "lightskyblue1")
 
@@ -228,6 +231,14 @@
 (setq ido-enable-flex-matching t)
 (setq ido-use-filename-at-point 'guess)
 (setq ido-show-dot-for-dired t)
+
+;; mods
+(require 'which-func)
+(which-func-mode 1)
+
+(global-set-key (kbd "C-<prior>") '(lambda () (interactive) (scroll-other-window -1)))
+(global-set-key (kbd "C-<next>") '(lambda () (interactive) (scroll-other-window 1)))
+(global-set-key (kbd "C-x \\") 'align-regexp)
 
 ;; C-x C-j opens dired with the cursor right on the file you're editing
 (require 'dired-x)
