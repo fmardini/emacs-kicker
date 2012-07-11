@@ -82,9 +82,15 @@
 ;; install new packages and init already installed packages
 (el-get 'sync my:el-get-packages)
 
+(show-paren-mode t)
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+(setq-default evil-shift-width 2)
+(setq-default js-indent-level 2)
+(setq-default c-basic-offset 2)
+(setq-default tab-width 2)
 (require 'evil)
 (evil-mode 1)
-(setq-default evil-shift-width 2)
 (define-key evil-motion-state-map "j" 'evil-next-visual-line)
 (define-key evil-motion-state-map "k" 'evil-previous-visual-line)
 
@@ -101,9 +107,6 @@
 (global-hl-line-mode)      ; highlight current line
 (global-linum-mode 1)      ; add line numbers on the left
 
-(show-paren-mode t)
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 
