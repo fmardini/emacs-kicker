@@ -82,8 +82,17 @@
 ;; install new packages and init already installed packages
 (el-get 'sync my:el-get-packages)
 
+(show-paren-mode t)
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+(setq-default evil-shift-width 2)
+(setq-default js-indent-level 2)
+(setq-default c-basic-offset 2)
+(setq-default tab-width 2)
 (require 'evil)
 (evil-mode 1)
+(define-key evil-motion-state-map "j" 'evil-next-visual-line)
+(define-key evil-motion-state-map "k" 'evil-previous-visual-line)
 
 ;; on to the visual settings
 (setq inhibit-splash-screen t)    ; no splash screen, thanks
@@ -98,9 +107,6 @@
 (global-hl-line-mode)      ; highlight current line
 (global-linum-mode 1)      ; add line numbers on the left
 
-(show-paren-mode t)
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 
@@ -169,7 +175,7 @@
                    (highlight-parentheses-mode t))))
 
 (setq parens-require-spaces nil)
-(setq show-paren-style 'expression)
+(setq show-paren-style 'parenthesis)
 (show-paren-mode t)
 (set-face-background 'show-paren-match "lightskyblue1")
 
@@ -228,6 +234,14 @@
 (setq ido-enable-flex-matching t)
 (setq ido-use-filename-at-point 'guess)
 (setq ido-show-dot-for-dired t)
+
+;; mods
+(require 'which-func)
+(which-func-mode 1)
+
+(global-set-key (kbd "C-<prior>") '(lambda () (interactive) (scroll-other-window -1)))
+(global-set-key (kbd "C-<next>") '(lambda () (interactive) (scroll-other-window 1)))
+(global-set-key (kbd "C-x \\") 'align-regexp)
 
 ;; C-x C-j opens dired with the cursor right on the file you're editing
 (require 'dired-x)
