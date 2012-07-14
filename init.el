@@ -174,6 +174,17 @@
                    (paredit-mode t)
                    (highlight-parentheses-mode t))))
 
+(when (file-exists-p "~/quicklisp/slime-helper.el")
+      (defun slime ()
+        (interactive)
+        (fmakunbound 'slime)
+        (load (expand-file-name "~/quicklisp/slime-helper.el"))
+        (set-language-environment "UTF-8")
+        (add-hook 'lisp-mode-hook (lambda () (slime-mode)))
+        (setq slime-net-coding-system 'utf-8-unix)
+        (setq inferior-lisp-program "/usr/local/bin/sbcl")
+        (slime)))
+
 (setq parens-require-spaces nil)
 (setq show-paren-style 'parenthesis)
 (show-paren-mode t)
@@ -235,6 +246,8 @@
 (setq ido-use-filename-at-point 'guess)
 (setq ido-show-dot-for-dired t)
 
+(load-theme 'tango-dark)
+
 ;; mods
 (require 'which-func)
 (which-func-mode 1)
@@ -262,6 +275,4 @@
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
-(global-set-key (kbd "C-M-r") 'isearch-backward)'
-
-(load-theme 'tango-dark)
+(global-set-key (kbd "C-M-r") 'isearch-backward)
