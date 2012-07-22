@@ -22,6 +22,8 @@
        (end-of-buffer)
        (eval-print-last-sexp)))))
 
+;; look into melpa
+
 ;; now either el-get is `require'd already, or have been `load'ed by the
 ;; el-get installer.
 
@@ -276,3 +278,15 @@
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)
+
+;; utilities
+(defun func-region (start end func)
+  "run a function over the region between START and END in current buffer."
+  (save-excursion
+    (let ((text (delete-and-extract-region start end)))
+      (insert (funcall func text)))))
+
+(defun unhex-region (start end)
+  "de-urlencode the region between START and END in current buffer."
+  (interactive "r")
+  (func-region start end #'url-unhex-string))
