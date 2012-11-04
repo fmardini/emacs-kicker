@@ -4,85 +4,38 @@
 ;; Author: Dimitri Fontaine <dim@tapoueh.org>
 ;; URL: https://github.com/dimitri/emacs-kicker
 ;; Created: 2011-04-15
-;; Keywords: emacs setup el-get kick-start starter-kit
 ;; Licence: WTFPL, grab your copy here: http://sam.zoy.org/wtfpl/
 ;;
 ;; This file is NOT part of GNU Emacs.
 
 (require 'cl)        ; common lisp goodies, loop
 
-(add-to-list 'load-path (concat user-emacs-directory "el-get/el-get"))
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                           ("marmalade" . "http://marmalade-repo.org/packages/")
+                           ("melpa" . "http://melpa.milkbox.net/packages/")))
+(package-initialize)
+
 (add-to-list 'load-path (concat user-emacs-directory "src/lib"))
 
-(unless (require 'el-get nil t)
-  (url-retrieve
-   "https://github.com/dimitri/el-get/raw/master/el-get-install.el"
-   (lambda (s)
-     (let (el-get-master-branch)
-       (end-of-buffer)
-       (eval-print-last-sexp)))))
-
 ;; look into melpa
+(setq my-package-list
+      '(smex
+        goto-last-change
+        switch-window
+        auto-complete
+        evil
+        yaml-mode
+        haml-mode
+        paredit
+        highlight-parentheses
+        clojure-mode
+        expand-region
+        color-theme
+        color-theme-tango))
 
-;; now either el-get is `require'd already, or have been `load'ed by the
-;; el-get installer.
-
-;; set local recipes
-(setq
- el-get-sources
- '((:name buffer-move      ; have to add your own keys
-    :after (progn
-       (global-set-key (kbd "<C-S-up>")     'buf-move-up)
-       (global-set-key (kbd "<C-S-down>")   'buf-move-down)
-       (global-set-key (kbd "<C-S-left>")   'buf-move-left)
-       (global-set-key (kbd "<C-S-right>")  'buf-move-right)))
-
-   (:name smex        ; a better (ido like) M-x
-    :after (progn
-       (setq smex-save-file "~/.emacs.d/.smex-items")
-       (global-set-key (kbd "M-x") 'smex)
-       (global-set-key (kbd "M-X") 'smex-major-mode-commands)))
-
-   (:name magit        ; git meet emacs, and a binding
-    :after (progn
-       (global-set-key (kbd "C-x C-z") 'magit-status)))
-
-   (:name lisppaste
-          :type elpa)
-
-   (:name flymake-jshint
-          :type elpa)
-
-   (:name goto-last-change    ; move pointer back to last change
-    :after (progn
-       ;; when using AZERTY keyboard, consider C-x C-_
-       (global-set-key (kbd "C-x C-/") 'goto-last-change)))))
-
-;; now set our own packages
-(setq
- my:el-get-packages
- '(el-get                             ; el-get is self-hosting
-   switch-window                      ; takes over C-x o
-   auto-complete                      ; complete as you type with overlays
-   evil                               ; VIM
-   flymake-cursor                     ;
-   yaml-mode                          ;
-   haml-mode                          ;
-   python-pep8                        ;
-   paredit                            ;
-   highlight-parentheses              ;
-   clojure-mode                       ;
-   expand-region                      ;
-   color-theme                        ; nice looking emacs
-   color-theme-tango))                ; check out color-theme-solarized
-
-(setq my:el-get-packages
-      (append
-       my:el-get-packages
-       (loop for src in el-get-sources collect (el-get-source-name src))))
-
-;; install new packages and init already installed packages
-(el-get 'sync my:el-get-packages)
+(dolist (pkg my-package-list)
+  (unless (package-installed-p pkg)
+    (package-install pkg)))
 
 (show-paren-mode t)
 (setq-default indent-tabs-mode nil)
@@ -110,7 +63,6 @@
 (global-linum-mode 1)      ; add line numbers on the left
 
 (defalias 'yes-or-no-p 'y-or-n-p)
-
 
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
