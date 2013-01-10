@@ -213,6 +213,8 @@
 ;; C-x C-j opens dired with the cursor right on the file you're editing
 (require 'dired-x)
 
+;; Org Mode
+(setq org-startup-indented t)
 
 ;; my code
 (defun increment-number-at-point ()
@@ -242,3 +244,7 @@
   "de-urlencode the region between START and END in current buffer."
   (interactive "r")
   (func-region start end #'url-unhex-string))
+
+;; Proof General
+(if (file-exists-p "~/workspace/lisp/ProofGeneral-4.2/generic/proof-site.el")
+    (load-file "~/workspace/lisp/ProofGeneral-4.2/generic/proof-site.el"))
