@@ -21,6 +21,7 @@
 (setq my-package-list
       '(smex
         goto-last-change
+        flycheck
         switch-window
         auto-complete
         evil
@@ -127,6 +128,7 @@
   (add-hook hook (lambda ()
                    (paredit-mode t)
                    (highlight-parentheses-mode t))))
+(add-hook 'ruby-mode-hook 'flycheck-mode)
 
 (when (file-exists-p "~/quicklisp/slime-helper.el")
       (defun slime ()
@@ -244,6 +246,34 @@
   "de-urlencode the region between START and END in current buffer."
   (interactive "r")
   (func-region start end #'url-unhex-string))
+
+;; Toggle horizontal vertical split
+;; From whattheemacsd.com
+(defun toggle-window-split ()
+  (interactive)
+  (if (= (count-windows) 2)
+      (let* ((this-win-buffer (window-buffer))
+             (next-win-buffer (window-buffer (next-window)))
+             (this-win-edges (window-edges (selected-window)))
+             (next-win-edges (window-edges (next-window)))
+             (this-win-2nd (not (and (<= (car this-win-edges)
+                                         (car next-win-edges))
+                                     (<= (cadr this-win-edges)
+                                         (cadr next-win-edges)))))
+             (splitter
+              (if (= (car this-win-edges)
+                     (car (window-edges (next-window))))
+                  'split-window-horizontally
+                'split-window-vertically)))
+        (delete-other-windows)
+        (let ((first-win (selected-window)))
+          (funcall splitter)
+          (if this-win-2nd (other-window 1))
+          (set-window-buffer (selected-window) this-win-buffer)
+          (set-window-buffer (next-window) next-win-buffer)
+          (select-window first-win)
+          (if this-win-2nd (other-window 1))))))
+(global-set-key (kbd "C-S-t") 'toggle-window-split)
 
 ;; Proof General
 (if (file-exists-p "~/workspace/lisp/ProofGeneral-4.2/generic/proof-site.el")
