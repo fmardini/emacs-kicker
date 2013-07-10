@@ -17,6 +17,11 @@
 
 (add-to-list 'load-path (concat user-emacs-directory "src/lib"))
 
+(when (file-exists-p "~/.opam/4.01.0dev+trunk/share/emacs/site-lisp")
+  (add-to-list 'load-path "~/.opam/4.01.0dev+trunk/share/emacs/site-lisp")
+  (autoload 'utop "utop" "Toplevel for OCaml" t))
+
+
 ;; look into melpa
 (setq my-package-list
       '(smex
@@ -129,6 +134,7 @@
                    (paredit-mode t)
                    (highlight-parentheses-mode t))))
 (add-hook 'ruby-mode-hook 'flycheck-mode)
+(setq ruby-insert-encoding-magic-comment nil)
 
 (when (file-exists-p "~/quicklisp/slime-helper.el")
       (defun slime ()
