@@ -17,10 +17,6 @@
 
 (add-to-list 'load-path (concat user-emacs-directory "src/lib"))
 
-(when (file-exists-p "~/.opam/4.01.0dev+trunk/share/emacs/site-lisp")
-  (add-to-list 'load-path "~/.opam/4.01.0dev+trunk/share/emacs/site-lisp")
-  (autoload 'utop "utop" "Toplevel for OCaml" t))
-
 
 ;; look into melpa
 (setq my-package-list
@@ -35,6 +31,7 @@
         paredit
         highlight-parentheses
         clojure-mode
+        sml-mode
         expand-region
         color-theme
         color-theme-tango))
@@ -136,17 +133,6 @@
 (add-hook 'ruby-mode-hook 'flycheck-mode)
 (setq ruby-insert-encoding-magic-comment nil)
 
-(when (file-exists-p "~/quicklisp/slime-helper.el")
-      (defun slime ()
-        (interactive)
-        (fmakunbound 'slime)
-        (load (expand-file-name "~/quicklisp/slime-helper.el"))
-        (set-language-environment "UTF-8")
-        (add-hook 'lisp-mode-hook (lambda () (slime-mode)))
-        (setq slime-net-coding-system 'utf-8-unix)
-        (setq inferior-lisp-program "/usr/local/bin/sbcl")
-        (slime)))
-
 (setq parens-require-spaces nil)
 (setq show-paren-style 'parenthesis)
 (show-paren-mode t)
@@ -154,6 +140,8 @@
 
 (require 'eldoc)
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
+
+(setq nrepl-popup-stacktraces nil)
 
 ;; avoid compiz manager rendering bugs
 (add-to-list 'default-frame-alist '(alpha . 100))
@@ -284,3 +272,12 @@
 ;; Proof General
 (if (file-exists-p "~/workspace/lisp/ProofGeneral-4.2/generic/proof-site.el")
     (load-file "~/workspace/lisp/ProofGeneral-4.2/generic/proof-site.el"))
+
+(when (file-exists-p "~/.opam/4.01.0dev+trunk/share/emacs/site-lisp")
+  (add-to-list 'load-path "~/.opam/4.01.0dev+trunk/share/emacs/site-lisp")
+  (autoload 'utop "utop" "Toplevel for OCaml" t)
+  (setq utop-command "opam config exec \"utop -emacs\"")
+  (autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
+  (add-hook 'tuareg-mode-hook 'utop-setup-ocaml-buffer)
+  (add-hook 'typerex-mode-hook 'utop-setup-ocaml-buffer))
+
