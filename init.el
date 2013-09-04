@@ -15,8 +15,7 @@
                            ("melpa" . "http://melpa.milkbox.net/packages/")))
 (package-initialize)
 
-(add-to-list 'load-path (concat user-emacs-directory "src/lib"))
-
+(add-to-list 'load-path (concat user-emacs-directory "lib"))
 
 ;; look into melpa
 (setq my-package-list
@@ -281,3 +280,27 @@
   (add-hook 'tuareg-mode-hook 'utop-setup-ocaml-buffer)
   (add-hook 'typerex-mode-hook 'utop-setup-ocaml-buffer))
 
+(require 'flymake-jshint)
+(add-hook 'js-mode-hook 'flymake-mode)
+
+;; Clojure
+(defun clojurescript-output-filter (output)
+  (let ((sans-prompt (replace-regexp-in-string "^ClojureScript:[^>]*> " "" output)))
+    (when (< 0 (length sans-prompt))
+      (message "(%d) %s" (length sans-prompt) sans-prompt))
+    output))
+
+(defun clojurescript-inferior-lisp-mode-hook ()
+  (with-current-buffer (process-buffer (inferior-lisp-proc))
+    (add-hook 'comint-preoutput-filter-functions 'clojurescript-output-filter)))
+
+(defun clojurescript-jack-in ()
+  (interactive)
+  (let ((inferior-lisp-program "lein trampoline cljsbuild repl-listen")
+        (inferior-lisp-mode-hook 'clojurescript-inferior-lisp-mode-hook))
+    (inferior-lisp inferior-lisp-program)))
+
+(defun cljs-mode-hook ()
+  (define-key clojurescript-mode-map "\C-x\C-e" 'clojurescript-eval-last-expression))
+
+(add-hook 'clojurescript-mode-hook 'cljs-mode-hook)
